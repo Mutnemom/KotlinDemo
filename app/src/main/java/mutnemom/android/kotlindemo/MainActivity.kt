@@ -22,6 +22,7 @@ import mutnemom.android.kotlindemo.fragments.AboutFragmentActivity
 import mutnemom.android.kotlindemo.gesture.GestureActivity
 import mutnemom.android.kotlindemo.model.DownloadModel
 import mutnemom.android.kotlindemo.notification.NotificationActivity
+import mutnemom.android.kotlindemo.playback.ExoPlayerActivity
 import mutnemom.android.kotlindemo.room.RoomCoroutinesActivity
 import mutnemom.android.kotlindemo.screenshot.ScreenshotActivity
 import mutnemom.android.kotlindemo.search.SearchActivity
@@ -72,6 +73,7 @@ class MainActivity :
         binding.btnScreenshot.setOnClickListener(this)
         binding.btnCustomView.setOnClickListener(this)
         binding.btnBottomNav.setOnClickListener(this)
+        binding.btnExoPlayer.setOnClickListener(this)
         binding.btnWebSocket.setOnClickListener(this)
         binding.btnDateTime.setOnClickListener(this)
         binding.btnDownload.setOnClickListener(this)
@@ -102,6 +104,7 @@ class MainActivity :
             R.id.btnCustomView -> startActivity(Intent(this, CustomViewActivity::class.java))
             R.id.btnScreenshot -> startActivity(Intent(this, ScreenshotActivity::class.java))
             R.id.btnBottomNav -> startActivity(Intent(this, BottomNavActivity::class.java))
+            R.id.btnExoPlayer -> startActivity(Intent(this, ExoPlayerActivity::class.java))
             R.id.btnWebSocket -> startActivity(Intent(this, WebSocketActivity::class.java))
             R.id.btnDownload -> startService(Intent(this, DownloadFileService::class.java))
             R.id.btnDateTime -> startActivity(Intent(this, DateTimeActivity::class.java))

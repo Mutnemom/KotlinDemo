@@ -17,7 +17,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:replace="android:allowBackup">
+        android:usesCleartextTraffic="true"
+        tools:replace="android:allowBackup"
+        tools:targetApi="m">
         <activity android:name=".fragments.transaction.AnimateFragmentTransactionActivity" />
         <activity android:name=".fragments.backpress.BackPressDispatcherActivity" />
         <activity android:name=".animations.transitions.TransitionsActivity" />
@@ -28,6 +30,7 @@
         <activity android:name=".bottomnav.BottomNavActivity" />
         <activity android:name=".room.RoomCoroutinesActivity" />
         <activity android:name=".draggable.DragViewActivity" />
+        <activity android:name=".playback.ExoPlayerActivity" />
         <activity android:name=".custom.CustomViewActivity" />
         <activity android:name=".datetime.DateTimeActivity" />
         <activity android:name=".toggle.SwitchIconActivity" />

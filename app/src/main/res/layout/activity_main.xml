@@ -150,6 +150,12 @@
             android:layout_height="56dp"
             android:text="@string/button_animate_progress_bar" />
 
+        <Button
+            android:id="@+id/btnExoPlayer"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:text="@string/txt_playback_library_chapter" />
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

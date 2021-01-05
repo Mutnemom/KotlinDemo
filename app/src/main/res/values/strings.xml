@@ -156,4 +156,8 @@
     <string name="txt_bottom_sheet_chapter">Bottom Sheet</string>
     <!--    -->
 
+    <!--  Exo Player -->
+    <string name="txt_playback_library_chapter">Exo Player</string>
+    <!--    -->
+
 </resources>
