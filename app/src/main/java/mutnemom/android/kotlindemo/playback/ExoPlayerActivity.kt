@@ -29,6 +29,9 @@ class ExoPlayerActivity : AppCompatActivity() {
     private var mediaUrl =
         "https://s3-ap-southeast-1.amazonaws.com/dev.elibrary-private-contents/encoded-media-upload/audio/cf7b8258-309e-48fc-aa4a-eabf317c299c/playlist.m3u8"
 
+    private var mediaUrl2 =
+        "https://s3-ap-southeast-1.amazonaws.com/dev.elibrary-private-contents/a32b5f03-2931-40a7-99a6-4a2e0af4a839/encrypted-contents/a2f4557a-61e0-40d9-8096-9fcf46b979d0/05859443-ff9a-4b3d-9158-cbfb30803992.m3u8"
+
     private var mediaQuality =
         "https://s3-ap-southeast-1.amazonaws.com/dev.elibrary-private-contents/encoded-media-upload/video/bbf361f4-c10c-4fbe-b0ab-855ebebb271b/playlist.m3u8"
 
@@ -73,7 +76,7 @@ class ExoPlayerActivity : AppCompatActivity() {
             player?.seekTo(currentWindow, playbackPosition)
         }
 
-        val mediaSource = buildMediaSource(Uri.parse(mediaUrl))
+        val mediaSource = buildMediaSource(Uri.parse(mediaUrl2))
         player?.prepare(mediaSource, true, false)
     }
 
