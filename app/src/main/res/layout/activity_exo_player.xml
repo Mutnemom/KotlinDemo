@@ -1,9 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.exoplayer2.ui.SimpleExoPlayerView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/exoPlayback"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".playback.ExoPlayerActivity">
+    android:orientation="vertical">
 
-</com.google.android.exoplayer2.ui.SimpleExoPlayerView>
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:id="@+id/exoPlayback"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        app:resize_mode="fill"
+        app:use_controller="true"
+        tools:context=".playback.ExoPlayerActivity" />
+
+    <Button
+        android:id="@+id/btnSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_default"
+        android:layout_marginTop="@dimen/margin_default"
+        android:text="x2"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_default"
+        android:layout_marginTop="@dimen/margin_default"
+        android:text="play"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnPause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_default"
+        android:layout_marginTop="@dimen/margin_default"
+        android:text="pause"
+        tools:ignore="HardcodedText" />
+
+</LinearLayout>
