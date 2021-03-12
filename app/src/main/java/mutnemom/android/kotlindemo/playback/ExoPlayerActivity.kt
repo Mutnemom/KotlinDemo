@@ -4,21 +4,21 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import mutnemom.android.kotlindemo.databinding.ActivityExoPlayerBinding
 import mutnemom.android.kotlindemo.extensions.toast
 
-class ExoPlayerActivity : AppCompatActivity() {
+class ExoPlayerActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var binding: ActivityExoPlayerBinding
 
@@ -29,13 +29,10 @@ class ExoPlayerActivity : AppCompatActivity() {
         "https://s3-ap-southeast-1.amazonaws.com/dev.elibrary-private-contents/encoded-media-upload/audio/sample_audio_1.mp3"
 
     private var mediaUrl =
-        "https://s3-ap-southeast-1.amazonaws.com/dev.elibrary-private-contents/encoded-media-upload/audio/cf7b8258-309e-48fc-aa4a-eabf317c299c/playlist.m3u8"
-
-    private var mediaUrl2 =
         "https://s3-ap-southeast-1.amazonaws.com/dev.elibrary-private-contents/a32b5f03-2931-40a7-99a6-4a2e0af4a839/encrypted-contents/364e6720-7526-4417-96de-d66110204b22/b7b80d5b-6666-49ad-93c1-101186173841.m3u8"
 
-    private var mediaQuality =
-        "https://s3-ap-southeast-1.amazonaws.com/dev.elibrary-private-contents/encoded-media-upload/video/bbf361f4-c10c-4fbe-b0ab-855ebebb271b/playlist.m3u8"
+    private var qualityUrl =
+        "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/m3u8s-fmp4/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
 
 //    private var mediaUrl =
 //        "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
@@ -43,16 +40,24 @@ class ExoPlayerActivity : AppCompatActivity() {
 //    private var mediaUrl = "http://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.m3u8"
 
     private var player: ExoPlayer? = null
+    private var trackSelector: DefaultTrackSelector? = null
 
     private var playbackPosition: Long = 0L
     private var currentWindow: Int = 0
     private var playWhenReady = false
+
+    private var isGenQuality = false
+    private val qualityList = arrayListOf<String>()
+
+    private var videoRendererIndex = 0
+    private var videoTrackGroups: TrackGroupArray? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityExoPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         setEvent()
     }
 
@@ -66,6 +71,12 @@ class ExoPlayerActivity : AppCompatActivity() {
         releasePlayback()
     }
 
+    override fun onClick(v: View?) {
+        (v as? Button)
+            ?.text
+            ?.also { changeVideoTrack(it.toString()) }
+    }
+
     private fun setEvent() {
         binding.apply {
             btnSpeed.setOnClickListener { doubleSpeed() }
@@ -75,64 +86,105 @@ class ExoPlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun initPlayback() {
-        if (player == null) {
-            val trackSelection = AdaptiveTrackSelection.Factory(
-                DefaultBandwidthMeter(),
-                1000,
-                2000,
-                2000,
-                2000,
-                .8f
+    private fun changeVideoTrack(heightPixel: String) {
+        toast("play track -> $heightPixel")
+
+        val trackOverride = if (qualityList.contains(heightPixel)) {
+            val index = qualityList.indexOf(heightPixel)
+            Log.e("tt", "-> found quality at index: $index")
+            index
+        } else {
+            Log.e("tt", "-> not found quality")
+            0
+        }
+
+        trackSelector?.apply {
+            val builder = parameters.buildUpon()
+            builder.setSelectionOverride(
+                videoRendererIndex,
+                videoTrackGroups!!,
+                DefaultTrackSelector.SelectionOverride(0, trackOverride)
             )
 
-            player = ExoPlayerFactory.newSimpleInstance(
-                DefaultRenderersFactory(this),
-                DefaultTrackSelector(),
-                DefaultLoadControl()
-            )
+            setParameters(builder)
+        }
+    }
+
+    private fun getVideoQualities() {
+        if (isGenQuality) return
+
+        trackSelector?.currentMappedTrackInfo?.also {
+            for (i in 0 until it.rendererCount) {
+                if (it.getRendererType(i) == C.TRACK_TYPE_VIDEO) {
+                    videoRendererIndex = i
+
+                    it.getTrackGroups(i).apply {
+                        videoTrackGroups = this
+
+                        if (length > 0) {
+                            val trackGroupIndex = 0
+                            get(trackGroupIndex).also { trackGroup ->
+
+                                for (trackIndex in 0 until trackGroup.length) {
+                                    trackGroup.getFormat(trackIndex)
+                                        .apply { qualityList.add("${height}p") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        qualityList.forEach {
+            Button(this@ExoPlayerActivity)
+                .apply { text = it }
+                .also { it.setOnClickListener(this) }
+                .also { binding.flowButton.addView(it) }
+        }
+
+        isGenQuality = true
+    }
+
+    private fun initPlayback() {
+        if (player == null) {
+            val trackSelectorParameters = DefaultTrackSelector.ParametersBuilder(this).build()
+            trackSelector = DefaultTrackSelector(this)
+            trackSelector?.parameters = trackSelectorParameters
+
+            player = SimpleExoPlayer
+                .Builder(this, DefaultRenderersFactory(this))
+                .setTrackSelector(trackSelector!!)
+                .build()
 
             binding.exoPlayback.player = this.player
             player?.playWhenReady = playWhenReady
             player?.seekTo(currentWindow, playbackPosition)
         }
 
-        val mediaSource = buildMediaSource(Uri.parse(mediaUrl2))
-        player?.prepare(mediaSource, true, false)
+        val mediaSource = buildMediaSource(Uri.parse(qualityUrl))
+
+//        player?.prepare(mediaSource, true, false)
+        player?.setMediaSource(mediaSource)
+        player?.prepare()
         player?.addListener(object : Player.EventListener {
-            override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
+
+            override fun onPlaybackStateChanged(state: Int) {
+                super.onPlaybackStateChanged(state)
+                if (state == Player.STATE_READY) getVideoQualities()
             }
 
             override fun onTracksChanged(
-                trackGroups: TrackGroupArray?,
-                trackSelections: TrackSelectionArray?
+                trackGroups: TrackGroupArray,
+                trackSelections: TrackSelectionArray
             ) {
+                super.onTracksChanged(trackGroups, trackSelections)
                 toast("track changed")
             }
 
-            override fun onLoadingChanged(isLoading: Boolean) {
-            }
-
-            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            }
-
-            override fun onRepeatModeChanged(repeatMode: Int) {
-            }
-
-            override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-            }
-
-            override fun onPlayerError(error: ExoPlaybackException?) {
-            }
-
-            override fun onPositionDiscontinuity(reason: Int) {
-            }
-
-            override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-                toast("speed: ${playbackParameters?.speed}")
-            }
-
-            override fun onSeekProcessed() {
+            override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+                super.onPlaybackParametersChanged(playbackParameters)
+                toast("speed: ${playbackParameters.speed}")
             }
 
         })
@@ -161,30 +213,25 @@ class ExoPlayerActivity : AppCompatActivity() {
         // for m3u8
         return HlsMediaSource
             .Factory(
-                DefaultHttpDataSourceFactory(
-                    userAgent,
-                    null,
-                    DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
-                    DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
-                    false
-                )
+                DefaultHttpDataSource.Factory().apply {
+                    setUserAgent(userAgent)
+//                    setTransferListener(null)
+//                    setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
+//                    setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
+//                    setAllowCrossProtocolRedirects(false)
+                }
             )
-            .createMediaSource(uri)
+            .createMediaSource(MediaItem.fromUri(uri))
     }
 
     private fun doubleSpeed() {
         player?.apply {
-            val currentSpeed = playbackParameters?.speed ?: .5f
+            val currentSpeed = playbackParameters.speed
             val expected = currentSpeed * 2
 
-            playbackParameters = PlaybackParameters(expected, 1f)
+            setPlaybackParameters(PlaybackParameters(expected, 1f))
         }
     }
-
-
-
-
-
 
     private fun openLineAt() {
         when (isAppInstalled(this, linePackageName)) {
