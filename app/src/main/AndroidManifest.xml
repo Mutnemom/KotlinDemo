@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="mutnemom.android.kotlindemo">
-    <!-- normal permission -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- request permission -->
+
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -20,6 +20,7 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:allowBackup"
         tools:targetApi="m">
+        <activity android:name=".animations.text.ExpandableTextViewActivity" />
         <activity android:name=".fragments.transaction.AnimateFragmentTransactionActivity" />
         <activity android:name=".fragments.backpress.BackPressDispatcherActivity" />
         <activity android:name=".animations.transitions.TransitionsActivity" />

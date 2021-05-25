@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import mutnemom.android.kotlindemo.animations.text.ExpandableTextViewActivity
 import mutnemom.android.kotlindemo.animations.transitions.TransitionsActivity
 import mutnemom.android.kotlindemo.bottomnav.BottomNavActivity
 import mutnemom.android.kotlindemo.bottomsheet.BottomSheetActivity
@@ -88,6 +89,7 @@ class MainActivity :
 
         registerReceiver()
 
+        binding.btnExpandableTextView.setOnClickListener { openExpandableTextViewPage() }
         binding.btnFragmentChapter.setOnClickListener { openFragmentChapterPage() }
         binding.btnRoomCoroutines.setOnClickListener { openRoomCoroutinesPage() }
         binding.btnDragView.setOnClickListener { openDragViewPage() }
@@ -125,6 +127,11 @@ class MainActivity :
             intentFilter.addAction("message_progress")
             registerReceiver(broadcastReceiver, intentFilter)
         }
+    }
+
+    private fun openExpandableTextViewPage() {
+        Intent(this, ExpandableTextViewActivity::class.java)
+            .apply { startActivity(this) }
     }
 
     private fun openFragmentChapterPage() {

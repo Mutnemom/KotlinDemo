@@ -160,4 +160,8 @@
     <string name="txt_playback_library_chapter">Exo Player</string>
     <!--    -->
 
+    <!--  Expandable TextView -->
+    <string name="txt_expandable_text_view_chapter">Expandable TextView</string>
+    <!--    -->
+
 </resources>
